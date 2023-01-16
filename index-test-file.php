@@ -21,6 +21,30 @@
         <hr>
 
         <?php }
+
+// Notes on when to echo or not to echo:
+        function doubleMe($x) {
+            echo $x * 2;
+            // Instead of echoing, a lot of functions return a value. 
+        }
+        function tripleMe($x) {
+            echo $x * 3;
+            // Instead of echoing, a lot of functions return a value. 
+        }
+// Since the value was just returned, to output to the page, we would add echo.
+        echo doubleMe(5);
+
+        echo tripleMe(doubleMe(5));
+
+        //WP functions:
+        // If the WP function starts with the word get, then it's not going to echo anything for you. It only returns the value. You have to add echo to the start.
+        // If the function starts with the word the - that means WP will echo out the value, and you don't need to add echo to the front of the function call.
+        // the_title();
+        // get_the_title();
+        // the_ID();
+        // get_the_id();
+
+
 ?>
 
 <?php 

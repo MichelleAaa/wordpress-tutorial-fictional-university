@@ -40,7 +40,15 @@ function university_files() {
 add_action('wp_enqueue_scripts', 'university_files');
 
 function university_features() {
-    // This is used to enable a feature for your theme.
+  // NOTE THAT THE THREE REGISTER_NAV_MENU()'S CAN BE REMOVED BECUASE WE ONLY TESTED DYNAMIC MENUS IN WP, BUT ARE BACK TO USING THE HARDCODED VERSIONS FOR THE TIME BEING.
+  // First argument is a name we make up. The second text string is the text that will show up in the wp-admin panel. 
+  // register_nav_menu('headerMenuLocation',"Header Menu Location");  
+  // This one will be for the footer1:
+  // register_nav_menu('footerLocationOne',"Footer Location One");  
+  // This one will be for the footer2:
+  // register_nav_menu('footerLocationTwo',"Footer Location Two");  
+
+  // This is used to enable a feature for your theme.
     add_theme_support('title-tag');
 }
 
