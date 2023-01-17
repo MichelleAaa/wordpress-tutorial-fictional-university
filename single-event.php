@@ -1,4 +1,7 @@
+<!-- This is for a custom post type. Whenever we register a new custom post type, wp will be on the lookup for a file called single-(new post type name).php -- in this case, it's single-event.php since we registered the new post type as 'event'. -->
+
 <!-- single.php is code for a single blog post -- if you click on the permalink in the blog post list, such as from the home page, it will take you to the individual post. So you can customize the code for the rendering of the individual post. -->
+
 
 <?php 
     // get_header will pull in the contents of header.php
@@ -23,10 +26,10 @@
         <div class="metabox metabox--position-up metabox--with-home-link">
             <p>
                 <!-- We are using site_url() to get the main url of the site, and add on /blog to the end of it, so this links to the main blog page, which has the while loop that goes over all the posts. (aka in index.php since we updated the homepage to a different page.) -->
-                <a class="metabox__blog-home-link" href="<?php echo site_url('/blog'); ?>"><i class="fa fa-home" aria-hidden="true"></i> Blog Home</a> 
-                <!-- for the link box, since we are on the individual blog post when we are loading single.php, we don't need to list a link to the post itself. Instead, we are using the box to display post details: -->
+                <!-- Sometimes we update the name of a custom post type. get_post_type_archive_link() will pull the custom type you are looking for. It goes off of the keyword you used when you set up the custom post type in mu-plugins or functions.php, in the first parameter of register_post_type() -->
+                <a class="metabox__blog-home-link" href="<?php echo get_post_type_archive_link('event'); ?>"><i class="fa fa-home" aria-hidden="true"></i> Events Home</a> 
                 <span class="metabox__main">
-                    Posted by <?php the_author_posts_link(); ?> on <?php the_time("n.j.y"); ?> in <?php echo get_the_category_list(", "); ?>
+                    <?php the_title(); ?>
                 </span>
             </p>
         </div>

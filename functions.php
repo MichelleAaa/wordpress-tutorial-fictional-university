@@ -55,4 +55,36 @@ function university_features() {
 // The first is when the action should take place (these are WP provided text strings). The second parameter is a made-up function.
 add_action('after_setup_theme', 'university_features' );
 
+
+// NOTE: the below has been moved into mu-plugins in it's own file. mu-plugins always must be loaded by wp, so it's safe to move the code there, however, you could leave it in functions.php if you wanted to:
+/*
+function university_post_types(){
+  // The first argument is the name of the custom post type we want to create, in this case, 'event'. The second argument is an associative array of different options to describe your post type. 
+  register_post_type('event', array(
+    'show_in_rest' => true, //You can add this if you are adding excerpt to the supports option below. This show_in_rest will let us see the custom post type of 'event' that we are adding in the wp-admin screen with the modern block editor (when editing a post) instead of the older editor layout. -- rest api makes raw api data avialable for JS to fetch, so we need it enabled for custom post types. (Note that for this to work, you must add 'editor' below, or else you will go back to the standard editor.)
+    'supports' => array('title', 'editor', 'excerpt', 'custom-fields'), //If you want the new post type to support custom excerpts in the wp-admin - post type setup, you have to add this. It's optional.(By default new post types support title and editor. It's up to us to decide if we want the rest.) -- Note for wp-admin - if you don't see excerpt, click screen options while editing the post, and select the Excert checkbox.
+    // custom-fields is optional. It's if you need extra fields to be added for that post type, such as an event date for the event post type.
+    'rewrite' => array('slug' => 'events'), // This will change the keyword that's displayed in the URL slug. (If you don't include it, it will use the slug for the post type, aka, the text entered in register_post_type as the first parameter.)
+    'public' => true, // This means it's visible to visitors of the website.
+    'has_archive' => true, // In order for the new post type to have an archive, we have to add this line.  – The archive can typically be accessed with the site url + /(new post type – in this case “/event/”
+    //Note that the archive will by default be powered by archive.php. If you want a new theme file that's only responsible for the event archive, you would need to create a new file in the theme's folder with the rest of the .php files. The name of the file must be archive-(name of custom post type).php. In this case, it's archive-event.php
+    'menu_icon' => 'dashicons-calendar', //in wp-admin, this is the menu icon image on the far left of the name of the tab. It's optional to set this value. It will default to the same icon as posts if not added. -- Google wordpress dashicons for options.
+    'labels' => array(
+      'name' => "Events", // wp-admin will show a new post (with the URL showing the name 'event' if we don't add this option.) This option will update wp-admin to show 'Events' on the sidebar.
+      'add_new_item' => "Add New Event",
+      //When you create a new event in wp-admin, in the edit box it says "Add New Post". This line is needed to update the text. -- Now it will say -- Add New Event
+        'edit_item' => 'Edit Event',
+    //   If you try to edit an existing event, the headline in wp-admin will read 'Edit Post'. This line is needed to update the text to -- Edit Event
+        'all_items' => "All Events",
+    // When you hover over the Events tab in wp-admin, it just sayd Events, not All Events. This will update it to say -- "All Events'
+    'singular_name' => 'Event'//
+    // There are tons of other labels you can change, but these are the most commonly used. 
+    ) 
+  ));
+}
+// The first parameter is the event hook, in this case, 'init'. The second argument is the name of a function we will create.
+add_action('init', 'university_post_types');
+*/
+
+
 ?>

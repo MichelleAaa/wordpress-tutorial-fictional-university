@@ -4,9 +4,28 @@
     <div class="page-banner">
       <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('images/ocean.jpg'); ?>)"></div>
       <div class="page-banner__content container container--narrow">
-        <h1 class="page-banner__title">Welcome to our blog!</h1>
+        <h1 class="page-banner__title">
+            <!-- This one function will take care of outputting the archive type name. Day: June 8, 2017. Category: Awards. Author: Brad -- These are the samples it will output. -->
+        <?php 
+        the_archive_title();
+        ?>
+        <!-- THIS IS ANOTHER WAY TO ADJUST THE PAGE BANNER TITLE FOR CATEGORY AND AUTHOR ARCHIVES. -- IF YOU WANT FINE-GRAINED CONTROL OVER THE TITLES YOU COULD USE THIS IF YOU DON'T PREFER THE_ARCHIVE_TITLE() ABOVE. -->
+        <!-- is_category() will return true if you are on a category archive screen, otherwise, false. -->
+        <!-- <?php if (is_category()) {
+                // This will echo the category name, if it's a category:
+            single_cat_title();;
+        }
+        // is_author() will return true if you are on an author category screen.
+        if(is_author()){
+            echo "Posts by "; the_author();
+        }
+        ?> -->
+        </h1>
         <div class="page-banner__intro">
-          <p>Keep up with our latest news.</p>
+            <!-- Author archives pull in the biography from the author. 
+        wp-admin - users - your profile - see biographical info -- anything you type here will be pulled in by the_archive_description().
+        category archives - wp-admin - posts - categories - click on the category name - Description field - anything you type here will be pulled in by the_archive_description().  -->
+          <p><?php the_archive_description(); ?></p>
         </div>
       </div>
     </div>

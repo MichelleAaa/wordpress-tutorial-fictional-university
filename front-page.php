@@ -1,0 +1,149 @@
+<?php 
+// get_header will pull in the contents of header.php
+get_header(); 
+?>
+
+<div class="page-banner">
+    <!-- For image links, we could get the entire link by going to wp-content/..., but there's an easier way.
+Original: style="background-image: url(images/library-hero.jpg)
+Updated to: style="background-image: url(<?php echo get_theme_file_uri('images/library-hero.jpg');
+?>)
+Note that get_theme_file_uri() will generate the entire link to the folder/file for us so we don't have to list out wp-content/...
+-->
+      <div class="page-banner__bg-image" 
+      style="background-image: url(<?php echo get_theme_file_uri('images/library-hero.jpg');?>)"></div>
+      <div class="page-banner__content container t-center c-white">
+        <h1 class="headline headline--large">Welcome!</h1>
+        <h2 class="headline headline--medium">We think you&rsquo;ll like it here.</h2>
+        <h3 class="headline headline--small">Why don&rsquo;t you check out the <strong>major</strong> you&rsquo;re interested in?</h3>
+        <a href="#" class="btn btn--large btn--blue">Find Your Major</a>
+      </div>
+    </div>
+
+    <div class="full-width-split group">
+      <div class="full-width-split__one">
+        <div class="full-width-split__inner">
+          <h2 class="headline headline--small-plus t-center">Upcoming Events</h2>
+          <?php
+            // Again, WP_Query is the blueprint that's provided by wordpress. We just tell the class what data we want to query from the database.
+            $homepageEvents = new WP_Query(array(
+              'posts_per_page' => 2,
+              'post_type' => 'event' // The post type is going to target the custom post type of 'event'
+            ));
+            
+            while($homepageEvents->have_posts()) {
+              //We have to look within the object for the built-in the_post() function as well as the above have_posts() function.
+              $homepageEvents->the_post(); ?>
+              <div class="event-summary">
+                <a class="event-summary__date t-center" href="#">
+                  <!-- the_field() can be used to pull data from a custom field. If you forgot the name of the custom field, you can go into wp-admin - Custom-Fields - and look for the Field Name. It's the one with no spaces.
+                  Note that for this setup we used the Ymd setup, so it outputs something like 20170720 - You can adjust the return value in Custom Fields -  But that's why we are using DateTime, to help with conversion. AND we are using get_field so it's a return value instead of the_field, which echos to the screen.-->
+                  <span class="event-summary__month"><?php 
+                  // DateTime will default to the current date, unless you add a parameter.
+                  $eventDate = new DateTime(get_field('event_date'));
+                  echo $eventDate->format('M');//asks for the month. 
+                  ?></span>
+                  <span class="event-summary__day"><?php 
+                  echo $eventDate->format('d');//asks for the day.  
+                  ?></span>
+                </a>
+                <div class="event-summary__content">
+                  <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
+                  <p><?php if (has_excerpt()) {
+                  //the_excerpt(); // the_excerpt() handles outputting the content to the page for us, which comes with some extra white space. If you prefer to style it different, then use the following instead:
+                  echo get_the_excerpt();
+              } else {
+                echo wp_trim_words(get_the_content(), 18);
+              } ?> <a href="<?php the_permalink(); ?>" class="nu gray">Learn more</a></p>
+                </div>
+            </div>
+            <?php }
+          ?>
+
+          <p class="t-center no-margin"><a href="<?php echo get_post_type_archive_link('event'); ?>" class="btn btn--blue">View All Events</a></p>
+        </div>
+      </div>
+      <div class="full-width-split__two">
+        <div class="full-width-split__inner">
+          <h2 class="headline headline--small-plus t-center">From Our Blogs</h2>
+          <?php  
+          // Custom Query:
+          // WP out of the box has a class called WP_Query. We are creating a new object with that as the blueprint.
+          $homepagePosts = new WP_Query(array(
+            "posts_per_page" => 2, //By default it will output 10 posts.
+            //"category_name" => 'awards' // If you wanted to pull only the first 2 posts from the awards category.
+            // 'post_type' => 'page' -- This would query all of the pages.
+          )); // The two most recent blog posts will be contained in this variable now, as well as some functions/methods.
+          
+          // By default, have_posts() and the_post() are tied to the default automatic query that WP makes on it's own. The one that's tied to the current URL. So instead of using those functions, for custom queries we need to add the object name we just created above and reference the wp generated functions that were already in created in that object from the wp managed class.
+            while($homepagePosts->have_posts()){
+              $homepagePosts->the_post(); ?>
+              <!-- <li><?php the_title(); ?></li> -->
+            <div class="event-summary">
+            <a class="event-summary__date event-summary__date--beige t-center" href="<?php the_permalink(); ?>">
+              <!-- the_time() - "M" for Month, "d" for day,  -->
+              <span class="event-summary__month"><?php the_time('M'); ?></span>
+              <span class="event-summary__day"><?php the_time('d'); ?></span>
+            </a>
+            <div class="event-summary__content">
+              <!-- wp_trim_words - First parameter is the content you want trimmed, second is how many words you want it limited to -->
+              <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
+              <!-- When you use the_excerpt(), if a post has a custom excerpt in the wp-admin page, it will show up. For posts that don't have it, it will pull in the first 55 words of the post as a fallback.  Instead, you could set up a custom fallback using an if statement:  
+              has_excerpt() will return true only if there's a custom excerpt in the post's wp-admin setup.-->
+              <p> <?php if (has_excerpt()) {
+                  //the_excerpt(); // the_excerpt() handles outputting the content to the page for us, which comes with some extra white space. If you prefer to style it different, then use the following instead:
+                  echo get_the_excerpt();
+              } else {
+                echo wp_trim_words(get_the_content(), 18);
+              } ?> <a href="<?php the_permalink(); ?>" class="nu gray">Read more</a></p>
+            </div>
+          </div>
+            <?php }
+            // With custom queries, you should always call the below at the end of the query. It resets global variables back to the original state. (Sometimes if you are at the bottom of a template file it's not needed, but it's just good habit to do it anyways just in case.)
+            wp_reset_postdata();
+          ?>
+
+          <p class="t-center no-margin"><a href="<?php echo site_url('/blog') ?>" class="btn btn--yellow">View All Blog Posts</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-slider">
+      <div data-glide-el="track" class="glide__track">
+        <div class="glide__slides">
+          <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/bus.jpg');?>)">
+            <div class="hero-slider__interior container">
+              <div class="hero-slider__overlay">
+                <h2 class="headline headline--medium t-center">Free Transportation</h2>
+                <p class="t-center">All students have free unlimited bus fare.</p>
+                <p class="t-center no-margin"><a href="#" class="btn btn--blue">Learn more</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/apples.jpg');?>) ">
+            <div class="hero-slider__interior container">
+              <div class="hero-slider__overlay">
+                <h2 class="headline headline--medium t-center">An Apple a Day</h2>
+                <p class="t-center">Our dentistry program recommends eating apples.</p>
+                <p class="t-center no-margin"><a href="#" class="btn btn--blue">Learn more</a></p>
+              </div>
+            </div>
+          </div>
+          <div class="hero-slider__slide" style="background-image: url(<?php echo get_theme_file_uri('images/bread.jpg');?>)">
+            <div class="hero-slider__interior container">
+              <div class="hero-slider__overlay">
+                <h2 class="headline headline--medium t-center">Free Food</h2>
+                <p class="t-center">Fictional University offers lunch plans for those in need.</p>
+                <p class="t-center no-margin"><a href="#" class="btn btn--blue">Learn more</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="slider__bullets glide__bullets" data-glide-el="controls[nav]"></div>
+      </div>
+    </div>
+
+<?php
+    // get_footer will pull in the contents of footer.php
+    get_footer();
+?>

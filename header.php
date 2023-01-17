@@ -21,15 +21,19 @@
           <nav class="main-navigation">
             <ul>
               <!-- technically for the href= you could use/about-us, but if you are using XAMPP or something, you may have multiple WP sites on your host, so it's better to do it this way: -->
-              <!-- To have the link light-up when it's the active link - aka we are on that page - we can use an if statement with is_page(). is_page() will return true if the parameter is a match to the page name from the end of the URl slug. -->
+              <!-- To have the link light-up when it's the active link - aka we are on that page - we can use an if statement with is_page(). is_page() will return true if the parameter is a match to the page name from the end of the URl slug. 
+              NOTE: is_home() could be used for the home page instead of is_page(). There is also is_archive() for an archive.-->
               <!-- Now, to get About Us to light up if we are on a child page of About Us, we have to add an || ---  wp_get_post_parent_id(0) - The 0 means to look up the current page. So this will return the ID of the parent page. 
             For the ==, you  need to go into your wp-admin page, and find what the id is for each of the pages (click on the page, it will say the post number in the URL) -- for the fist one, we have to look for the ID of the About Us page.-->
-            <!-- If the current page is the about us page, or if it's a child page of about us (which I went into wp-admin to get 11), then the about us li will have a class added to it for styling -->
+            <!-- If the current page is the about us page, or if it's a child page of about us (which I went into wp-admin to get 11), then the about us li will have a class added to it for styling.-->
               <li <?php if(is_page('about-us') || wp_get_post_parent_id(0) == 11) echo 'class="current-menu-item"' ?>><a href="<?php echo site_url('/about-us'); ?>">About Us</a></li>
               <li><a href="#">Programs</a></li>
-              <li><a href="#">Events</a></li>
+              <li <?php if (get_post_type() == 'event') echo 'class="current-menu-item"'; ?>><a href="<?php echo get_post_type_archive_link('event'); ?>">Events</a></li>
               <li><a href="#">Campuses</a></li>
-              <li><a href="#">Blog</a></li>
+              <!-- For the blog pages, we would want the blog icon to be highlighted (aka the css class added) for any blog post page that we are on: -->
+              <li <?php if(get_post_type() == 'post') echo 'class="current-menu-item"'
+              // a blog post has a type of post, while a page has a type of page. (We can also create new event types as well.)
+              ?>><a href="<?php echo site_url('/blog'); ?>">Blog</a></li>
             </ul>
 
             <!-- Dynamic menu, with setup in wp-admin & changes to functions.php-->
