@@ -27,8 +27,8 @@
             For the ==, you  need to go into your wp-admin page, and find what the id is for each of the pages (click on the page, it will say the post number in the URL) -- for the fist one, we have to look for the ID of the About Us page.-->
             <!-- If the current page is the about us page, or if it's a child page of about us (which I went into wp-admin to get 11), then the about us li will have a class added to it for styling.-->
               <li <?php if(is_page('about-us') || wp_get_post_parent_id(0) == 11) echo 'class="current-menu-item"' ?>><a href="<?php echo site_url('/about-us'); ?>">About Us</a></li>
-              <li><a href="#">Programs</a></li>
-              <li <?php if (get_post_type() == 'event') echo 'class="current-menu-item"'; ?>><a href="<?php echo get_post_type_archive_link('event'); ?>">Events</a></li>
+              <li <?php if(get_post_type() == 'program')echo 'class="current-menu-item"' ?>><a href="<?php echo get_post_type_archive_link('program'); ?>">Programs</a></li>
+              <li <?php if (get_post_type() == 'event' || is_page('past-events')) echo 'class="current-menu-item"'; ?>><a href="<?php echo get_post_type_archive_link('event'); ?>">Events</a></li>
               <li><a href="#">Campuses</a></li>
               <!-- For the blog pages, we would want the blog icon to be highlighted (aka the css class added) for any blog post page that we are on: -->
               <li <?php if(get_post_type() == 'post') echo 'class="current-menu-item"'

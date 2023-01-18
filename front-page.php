@@ -16,7 +16,7 @@ Note that get_theme_file_uri() will generate the entire link to the folder/file 
         <h1 class="headline headline--large">Welcome!</h1>
         <h2 class="headline headline--medium">We think you&rsquo;ll like it here.</h2>
         <h3 class="headline headline--small">Why don&rsquo;t you check out the <strong>major</strong> you&rsquo;re interested in?</h3>
-        <a href="#" class="btn btn--large btn--blue">Find Your Major</a>
+        <a href="<?php echo get_post_type_archive_link('program') ?>" class="btn btn--large btn--blue">Find Your Major</a>
       </div>
     </div>
 
@@ -25,10 +25,23 @@ Note that get_theme_file_uri() will generate the entire link to the folder/file 
         <div class="full-width-split__inner">
           <h2 class="headline headline--small-plus t-center">Upcoming Events</h2>
           <?php
+          $today = date('Ymd');//Will return today's date in ymd format. 20170628 - that's an example of the format -- and it's the same format used by our event_date field.
             // Again, WP_Query is the blueprint that's provided by wordpress. We just tell the class what data we want to query from the database.
             $homepageEvents = new WP_Query(array(
-              'posts_per_page' => 2,
-              'post_type' => 'event' // The post type is going to target the custom post type of 'event'
+              'posts_per_page' => 2, // -1 would give us all posts that meet the conditions.
+              'post_type' => 'event', // The post type is going to target the custom post type of 'event'
+              'meta_key' => 'event_date', //This is required when using 'meta_value below.
+              'orderby' => 'meta_value_num',//By default, it's set to 'post_date'. 'title' would order alphabetically by title., 'rand' randomizes. -- 'meta_value' is the custom or original data set on the post. So we are saying we want to sort by a custom field. (note that event_date is a custom field.) -- When you add on 'meta_value' you need the 'meta_key' value to enter the name of the custom field. -- In this case though, we need to use 'meta_value_num' becuase we need to sort by a number.
+              'order' => 'ASC', //by default it's set to 'DESC'. 
+              'meta_query' => array(
+                array( // this will make sort of a sentence in a way. Only give us posts where the key is comparable to the value listed.
+                  // So the below says -- only find items with an event_date that is greater than or equal to the current date.
+                  'key' => 'event_date',
+                  'compare' => '>=',
+                  'value' => $today,
+                  'type' => 'numeric' // we are comparing numbers.
+                )
+              )//we could have multiple restrictions in the array by adding multiple inner arrays. We only need one inner array to check for one thing. -- only check for posts that are today's date or a future date, no past dates. (We only want to show upcoming events.)
             ));
             
             while($homepageEvents->have_posts()) {

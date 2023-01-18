@@ -37,6 +37,25 @@
         <div class="generic-content">
             <?php the_content(); ?>
         </div>
+        <?php 
+        // The advanced custom fields program gives us access to this function. We just tell it which custom field name we want to retrieve. -- you can go to wp-admin - custom fields - and find the field name which has _ instead of spaces.
+        // If you want to see what's inside the variable, you can use - print_r() to check it out. print_r($related_programs).
+        $relatedPrograms = get_field('related_programs');
+        // This will check if there's even one related_programs item. It will evaluate to false if there's nothing.
+        if($relatedPrograms) {
+
+        echo '<hr class="section-break">';
+        echo "<h2 class='headline headline--medium'>Related Program(s)</h2>";
+        echo '<ul class="link-list min-list">';
+// The name of the second variable, $program, doesn't matter. Only the array name must be correct.
+        foreach($relatedPrograms as $program) { ?>
+            // echo get_the_title($program); -  We give the ID of the post or a wp post object. that's what program is, as each item in the array is a wp post object. -- This will output the program names that we added in the wp-admin panel - by adding the relationship in the event post type, as we set up a custom field - relationship type.
+            <li><a href="<?php echo get_the_permalink($program); ?>"><?php echo get_the_title($program); ?></a></li>
+
+        <?php }
+        echo '</ul>';
+        }
+        ?>
     </div>
 <!-- 
     the_title() will pull the title for each post. 

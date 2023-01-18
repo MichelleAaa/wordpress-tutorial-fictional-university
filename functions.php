@@ -86,5 +86,42 @@ function university_post_types(){
 add_action('init', 'university_post_types');
 */
 
+// Note that anytime you want to adjust wp default queries, you can add a section to the below function, including a new if statement.
+function university_adjust_queries($query) {
+// When WP calls a function it gives reference to the query that's being called. So when WP passed on the $query object, we can manipulate the object within the function. 
+
+//-- This code would even effect the wp-admin panel, how many posts it shows us. We can't leave this alone as it's too broad, we only want to impact the archive-event page. So the if statement is required to limit this code. -- We only want the code to run on the front-end, not the back end wp-admin panel. -- And we only want the code to run when we are on the archive-event.php file.
+//  $query->is_main_query() will only evaluate to true if the query that is passed in is a main query for the page -- such as the main archive-event.php query that wp runs -- not a custom query on that page. (in case we wanted to make one.)
+  if (!is_admin() && is_post_type_archive('event') && $query->is_main_query()) {
+    //$query->set('posts_per_page', '1');// if you entered '1' as the second parameter, then it would only output one event per page.
+    // set() is built-in. First parameter is the query key we want to change. Second argument is the value you want to use.
+    // Note that these values are similar to what we worked on in front-page.php, but it's different because that was a custom query, while this is just modifying the automatic wp query.
+    $today = date('Ymd');//Will return today's date in ymd format. 20170628 - that's an example of the format -- and it's the same format used by our event_date field.
+    $query->set('meta_key', 'event_date'); //This is required when using 'meta_value below.
+    $query->set('orderby', 'meta_value_num'); //By default, it's set to 'post_date'. 'title' would order alphabetically by title., 'rand' randomizes. -- 'meta_value' is the custom or original data set on the post. So we are saying we want to sort by a custom field. (note that event_date is a custom field.) -- When you add on 'meta_value' you need the 'meta_key' value to enter the name of the custom field. -- In this case though, we need to use 'meta_value_num' becuase we need to sort by a number.
+    $query->set('order', 'ASC'); //by default it's set to 'DESC'. 
+    $query->set('meta_query', array(
+                array( // this will make sort of a sentence in a way. Only give us posts where the key is comparable to the value listed.
+                  // So the below says -- only find items with an event_date that is greater than or equal to the current date.
+                  'key' => 'event_date',
+                  'compare' => '>=',
+                  'value' => $today,
+                  'type' => 'numeric' // we are comparing numbers.
+                )
+              )
+            );
+  }
+
+  // Adjust the wp default query for archive-program.php:
+// If not in the admin section (aka only for the front-end queries), is post type program, and it's the main query.
+    if( !is_admin() && is_post_type_archive('program') && is_main_query()){
+      $query->set('orderby', 'title');
+      $query->set('order', 'ASC');
+      $query->set('posts_per_page', -1);//this means even if we have 100 programs, they will all be listed at once.
+    }
+}
+
+// The first is the timing (Wp defined options). -- 'pre_get_posts' means to call the function in the second parameter right before you get the posts. The second parameter is a made-up function name.
+  add_action('pre_get_posts', 'university_adjust_queries');
 
 ?>
