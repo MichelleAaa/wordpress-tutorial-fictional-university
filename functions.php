@@ -50,6 +50,18 @@ function university_features() {
 
   // This is used to enable a feature for your theme.
     add_theme_support('title-tag');
+// This is being used to enable post thumbnail images. (Featured Images) -- The code enables featured images for blog posts, but not for custom posts.
+    add_theme_support('post-thumbnails');
+    // If you go into wp-content - uploades - you will find months listed. You can find the month of upload, and you will see the thumbnail image you uploaded. WP generates a bunch of different copies of the photos at different resolutions. 
+    // We can also ask wp to generate another size of the image as well:
+    // The first argument is a name we make up. second argument is how wide in px the image should be, the next is height of th image in px, and the fifth image is if you want the image to be cropped. The default is false, so you would need to select true if you want it cropped. - WP will crop towards the center of the image.
+    add_image_size('professorLandscape', 400, 260, array('left', 'top'));
+    add_image_size('professorPortrait', 480, 650, true);
+    // If you want more control over how it's cropped, you could pass in an array. array-- add_image_size('professorLandscape', 400, 260, array('left', 'top')); -- (first value is horizontal -- so here we chose to crop to the left, second value is vertical, so here we chose to crop to the top.) -- The problem is that there's no one perfect way to crop an image.
+    // Note that wp will use these new sizes for future imges that we upload, but it won't retroactively create new sizes for images we already uploaded.
+
+    // If you want a custom image size for the page banner, you could use something like:
+      add_image_size('pageBanner', 1500, 350, true);
 }
 
 // The first is when the action should take place (these are WP provided text strings). The second parameter is a made-up function.

@@ -4,6 +4,8 @@
 
 
 <?php 
+
+// the_ID(); // This will echo out the numerical ID of the page. (You can add it temporarily if you need the page/posts id number -- though you can also look in wp admin.)
     // get_header will pull in the contents of header.php
     get_header();
 
@@ -39,6 +41,47 @@
         </div>
 
         <?php 
+
+// ________________
+        $relatedProfessors = new WP_Query(array(
+            'posts_per_page' => -1, // -1 would give us all posts that meet the conditions.
+            'post_type' => 'professor', // The post type is going to target the custom post type of 'event'
+            'orderby' => 'title',
+            'order' => 'ASC', //by default it's set to 'DESC'. 
+            'meta_query' => array(
+            // the new filter below says -- if the array of related_programs contains (aka LIKE), the ID of the current program post, then include it.
+            array(
+                'key' => 'related_programs', // before the array of data can be saved, it has to be serialized. -- it becomes something like a:3:{i:'0',i:'12',i:'1'} -- It's a big messy string of text. If you were looking for 12, 12 would match, as well as 120.
+                'compare' => 'LIKE',
+                'value' => '"' . get_the_ID() . '"' // we need to search for "result here" becuase of the serialization mentioned above. -- so we are concating on double quotes at the start and end of the function.
+                // Becuase of the while loop for the professor is above this code, you have to be sure you do the wp reset (above) so this gets the ID of the page, not of the while loop above it.
+            )
+            )//we could have multiple restrictions in the array by adding multiple inner arrays. 
+        ));
+        // We are looking inside $homepageEvents to make sure it has posts. 
+        if($relatedProfessors->have_posts()){
+            echo '<hr class="section-break">';
+        echo '<h2 class="headline headline--medium">' . get_the_title() . ' Professors</h2>';
+        
+        echo '<ul class="professor-cards">';
+        while($relatedProfessors->have_posts()) {
+            //We have to look within the object for the built-in the_post() function as well as the above have_posts() function.
+            $relatedProfessors->the_post(); ?>
+            <li class="professor-card__list-item">
+              <a href="<?php the_permalink(); ?>" class="professor-card">
+              <img class="professor-card__image" src="<?php the_post_thumbnail_url('professorLandscape'); ?>">
+              <span class="professor-card__name">
+                <?php the_title(); ?>
+              </span>
+            </a>
+            </li>
+        <?php }
+        echo '</ul>';
+        }
+//___________
+
+        wp_reset_postdata();
+
         $today = date('Ymd');//Will return today's date in ymd format. 20170628 - that's an example of the format -- and it's the same format used by our event_date field.
             // Again, WP_Query is the blueprint that's provided by wordpress. We just tell the class what data we want to query from the database.
             $homepageEvents = new WP_Query(array(
