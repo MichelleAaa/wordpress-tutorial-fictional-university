@@ -12,28 +12,10 @@
 // have_posts will pull the posts that are listed in the wp-admin - posts screen. The while loop will continue to loop through all the blog posts.
     while(have_posts()) {
     //This function will keep track of the current post we are working with. So each time the while loop runs, the_post() will tell WP to get all the relevant information about our post.
-        the_post(); ?>
-
-    <div class="page-banner">
-      <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('images/ocean.jpg'); ?>)"></div>
-      <!-- If you want to load a page banner that you uploaded: 
-    Note that the result is an array, whcih is why we are looking in it with [] to get the url to the image
-        If you didn't know how to work with it, you could always just drop into php and echo out the variable to the website to see it. (use print_r($variableName))
-       
--->
-      <!-- <div class="page-banner__bg-image" style="background-image: url(<?php  $pageBannerImage = get_field('page_banner_background_image'); echo $pageBannerImage['url'] ?>)"></div> -->
-       
-      <!-- If you want to use a custom size, lik ethe pageBanner image size, you could check out 'sizes''pageBanner; -->
-      <!-- <div class="page-banner__bg-image" style="background-image: url(<?php  $pageBannerImage = get_field('page_banner_background_image'); echo $pageBannerImage['sizes']['pageBanner'] ?>)"></div> -->
-      <!-- If you don't like the way it looks, because we installed the manual crop plugin, you can always go back into wp-admin, click on the post, edit the image, and click crop image to adjust it -->
-
-      <div class="page-banner__content container container--narrow">
-        <h1 class="page-banner__title"><?php the_title(); ?></h1>
-        <div class="page-banner__intro">
-          <p><?php the_field('page_banner_subtitle'); ?></p>
-        </div>
-      </div>
-    </div>
+        the_post(); 
+        
+        pageBanner();
+        ?>
 
     <div class="container container--narrow page-section">
         <div class="generic-content">

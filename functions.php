@@ -1,6 +1,40 @@
 <!-- The functions.php file is different from the rest of the files. The other files are template files, used to load the HTML on the website. This file however, is where we have a conversation with the wordpress system itself. It works behind the scenes. -->
 
 <?php
+//We set a default value in case there's nothing turned in -- it's all optional. (It will throw an error if there's no $args passed in without the default value.)
+function pageBanner($args = NULL) {
+  //$args is an array of values - associative array with 'title' and 'subtitle'
+  // If there's no value, then we set a default:
+  // NOTE: Essentially, in older versions of PHP, while it wasn't a good idea to check the value of an array item that might not exist PHP would still let us do it. However, in modern versions of PHP you cannot try to access an array item that doesn't exist; if you do you will receive a warning message. -- To fix this we can use the isset() function:
+  if (!isset($args['title'])) {
+    $args['title'] = get_the_title();
+  }
+  // Set the custom fields entry if there's no entry for subtitle in the array:
+  if (!isset($args['subtitle'])) {
+    $args['subtitle'] = get_field('page_banner_subtitle');
+  }
+
+    if (!isset($args['photo'])) {
+      // page_banner_background_image is a custom field where you can upload an image for the post or page. --
+      // We are listing !is_archive() AND !is_home because if the first event in a list of events has a background image on a page like the home page or an archive page, the system can get confused and try to use it as the banner for the entire archive page. So we want to skip that behavior and move to the next lines.
+      if (get_field('page_banner_background_image') AND !is_archive() AND !is_home()) {
+        $args['photo'] = get_field('page_banner_background_image')['sizes']['pageBanner'];
+      } else { //  This is the backup if there's no photo link in the args or in the page_banner_background_image custom field.
+        $args['photo'] = get_theme_file_uri('/images/ocean.jpg');
+      }
+    }
+
+  ?>
+  <div class="page-banner">
+      <div class="page-banner__bg-image" style="background-image: url(<?php echo $args['photo'] ?>)"></div>
+      <div class="page-banner__content container container--narrow">
+        <h1 class="page-banner__title"><?php echo $args['title'] ?></h1>
+        <div class="page-banner__intro">
+          <p><?php echo $args['subtitle']; ?></p>
+        </div>
+      </div>
+    </div>
+<?php }
 
 function university_files() {
 
@@ -11,6 +45,10 @@ function university_files() {
     // The fourth parameter is the version number, and this we can make up as a string value.
     // The fifth value is whether you want WP to load this file right before the closing body tag. True or False. -- We entered true becuase we want this to load at the end of the body and not in the head section. (It's better for overall performance.)
     wp_enqueue_script('main-university-js', get_theme_file_uri('/build/index.js'), array('jquery'), '1.0', true);
+    
+    // This is to load the google map.
+    wp_enqueue_script('googleMap', '//maps.googleapis.com/maps/api/js?key=???', NULL, '1.0', true);
+    // Note that you will need to replace the ??? with your api key.
 
     //  Link For fontawesome - Since we aren't loading a file locally, only providing a link, we don't use a function for the second argument. We just list the web address.
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
@@ -131,9 +169,22 @@ function university_adjust_queries($query) {
       $query->set('order', 'ASC');
       $query->set('posts_per_page', -1);//this means even if we have 100 programs, they will all be listed at once.
     }
+
+    // Adjust the wp default query for archive-program.php:
+    // If not in the admin section (aka only for the front-end queries), is post type campus, and it's the main query.
+    if( !is_admin() && is_post_type_archive('campus') && is_main_query()){
+      $query->set('posts_per_page', -1);//this means even if we have 100 programs, they will all be listed at once.
+    }
 }
 
 // The first is the timing (Wp defined options). -- 'pre_get_posts' means to call the function in the second parameter right before you get the posts. The second parameter is a made-up function name.
   add_action('pre_get_posts', 'university_adjust_queries');
+
+  function universityMapKey($api) {
+    $api['key'] = '';//You would have to add the google API key here. I didn't get one since you have to put a credit card on file for it.
+  }
+
+// acf is for advanced custom fields
+  add_filter('acf/fields/google_map/api', 'universityMapKey');
 
 ?>

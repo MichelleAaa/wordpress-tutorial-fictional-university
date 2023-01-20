@@ -7,7 +7,15 @@
 // have_posts will pull the posts that are listed in the wp-admin - posts screen. The while loop will continue to loop through all the blog posts.
     while(have_posts()) {
     //This function will keep track of the current post we are working with. So each time the while loop runs, the_post() will tell WP to get all the relevant information about our post.
-        the_post(); ?>
+        the_post(); 
+        
+        // This calls the pageBanner function in functions.php and inserts the code here:
+        pageBanner(array(
+          'title' => 'Hello there this is the title',
+          'subtitle' => 'Hi, this is the subtitle',
+          // 'photo' => ''
+        ));
+        ?>
 <!-- 
     the_title() will pull the title for each post. 
 NOTE: For the single blog post, we don't want it to have a link since we are already on the single post's page. So we have deleted the a tag:-->
@@ -15,15 +23,7 @@ NOTE: For the single blog post, we don't want it to have a link since we are alr
 <!-- the_content() will pull the content of the post -->
         <!-- <?php the_content(); ?> -->
 
-    <div class="page-banner">
-      <div class="page-banner__bg-image" style="background-image: url(<?php echo get_theme_file_uri('images/ocean.jpg'); ?>)"></div>
-      <div class="page-banner__content container container--narrow">
-        <h1 class="page-banner__title"><?php the_title(); ?></h1>
-        <div class="page-banner__intro">
-          <p>DON'T FORGET TO REPLACE THIS LATER.</p>
-        </div>
-      </div>
-    </div>
+
 
     <!-- This is a breadcrumb box, where we are displaying links to other related pages. For a child page, we would want to display the parent name, then the current child page name. -->
     <!-- In wp-admin, when you edit a post or page, towards the end of the URL you will see a number. It's the unique numerical ID for that page or post.

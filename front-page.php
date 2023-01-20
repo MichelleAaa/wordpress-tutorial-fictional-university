@@ -46,31 +46,11 @@ Note that get_theme_file_uri() will generate the entire link to the folder/file 
             
             while($homepageEvents->have_posts()) {
               //We have to look within the object for the built-in the_post() function as well as the above have_posts() function.
-              $homepageEvents->the_post(); ?>
-              <div class="event-summary">
-                <a class="event-summary__date t-center" href="#">
-                  <!-- the_field() can be used to pull data from a custom field. If you forgot the name of the custom field, you can go into wp-admin - Custom-Fields - and look for the Field Name. It's the one with no spaces.
-                  Note that for this setup we used the Ymd setup, so it outputs something like 20170720 - You can adjust the return value in Custom Fields -  But that's why we are using DateTime, to help with conversion. AND we are using get_field so it's a return value instead of the_field, which echos to the screen.-->
-                  <span class="event-summary__month"><?php 
-                  // DateTime will default to the current date, unless you add a parameter.
-                  $eventDate = new DateTime(get_field('event_date'));
-                  echo $eventDate->format('M');//asks for the month. 
-                  ?></span>
-                  <span class="event-summary__day"><?php 
-                  echo $eventDate->format('d');//asks for the day.  
-                  ?></span>
-                </a>
-                <div class="event-summary__content">
-                  <h5 class="event-summary__title headline headline--tiny"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h5>
-                  <p><?php if (has_excerpt()) {
-                  //the_excerpt(); // the_excerpt() handles outputting the content to the page for us, which comes with some extra white space. If you prefer to style it different, then use the following instead:
-                  echo get_the_excerpt();
-              } else {
-                echo wp_trim_words(get_the_content(), 18);
-              } ?> <a href="<?php the_permalink(); ?>" class="nu gray">Learn more</a></p>
-                </div>
-            </div>
-            <?php }
+              $homepageEvents->the_post(); 
+              // This file is located in template-parts (folder), event.php file. We are pulling in the static content from there:
+              // get_template_part() takes two arguments. The first one is a pointer towards the new file. -- note that the file is called event.php, but you just write event. -- The second argument will look inside the folder for the specialty name. 
+              get_template_part('template-parts/event', 'excerpt');
+            }
           ?>
 
           <p class="t-center no-margin"><a href="<?php echo get_post_type_archive_link('event'); ?>" class="btn btn--blue">View All Events</a></p>
