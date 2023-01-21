@@ -1,6 +1,8 @@
-<!-- The functions.php file is different from the rest of the files. The other files are template files, used to load the HTML on the website. This file however, is where we have a conversation with the wordpress system itself. It works behind the scenes. -->
 
 <?php
+
+// <!-- The functions.php file is different from the rest of the files. The other files are template files, used to load the HTML on the website. This file however, is where we have a conversation with the wordpress system itself. It works behind the scenes. -->
+
 //We set a default value in case there's nothing turned in -- it's all optional. (It will throw an error if there's no $args passed in without the default value.)
 function pageBanner($args = NULL) {
   //$args is an array of values - associative array with 'title' and 'subtitle'
@@ -70,6 +72,10 @@ function university_files() {
   wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
 //   This loads a second css file. Note we created a new name in the first parameter and are referencing the new style sheet in the second's parameter.
   wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
+
+  wp_localize_script('main-university-js', 'universityData', array(
+    'root_url' => get_site_url()// this will enable us to get the site_url dynamically.
+  ));//this is a WP function that wil let us output a little bit of JS data into the html source of the website. It takes three arguments. 1st - name or handle of the JS file yo uare trying to make flexible. In this case "main-university-js'. 2nd - make up a varible name, and the name doesn't matter. 3rd - an array of data that needs to be made available in JS.
 }
 
 // add_action requires 2 parameters. WP allows us to give it instructions using this method. 'wp_enqueue_scripts' 

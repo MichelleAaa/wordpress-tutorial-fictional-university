@@ -66,6 +66,22 @@
         </div>
       </div>
     </footer>
+<!-- search-overlay is hidden by default. when you add search-overlay--active, then the overlay is active. The search overlay will be hidden by default, and we will add the search-overlay--active to it dynamtically. (Once they click a button, the class will be added and it will become visible.) -- This has been moved into Search.js but you could also have it here.-->
+  <!-- <div class="search-overlay">
+    <div class="search-overlay__top">
+        <div class="container">
+        <i class="fa fa-search search-overlay__icon" aria-hidden="true"></i>
+        <!-- To prevent the browser from showing the previous terms you’ve searched for you can add this attribute/value pair to the search <input> element: autocomplete="off" -->
+        <!-- <input type="text" class="search-term" placeholder="What are you looking for?" id="search-term" autocomplete="off">
+        <i class="fa fa-window-close search-overlay__close" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div>
+        <div id="search-overlay__results"></div>
+    </div>
+  </div> --> -->
+
+
 <!-- wp_footer() gives WP the ability to load JS files. Also, in this case, it adds in the black WP menu bar at the top of the page. -->
 <?php wp_footer(); ?>
 </body>
