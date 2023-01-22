@@ -29,7 +29,8 @@
         </div>
 
         <div class="generic-content">
-            <?php the_content(); ?>
+            <!-- <?php the_content(); ?> Since we are now using the custom fields wysiwyg editor, we are changing from the main content field to referring to it below:--> 
+            <?php the_field('main_body_content'); ?>
         </div>
 
         <?php 

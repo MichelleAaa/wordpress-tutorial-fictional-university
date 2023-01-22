@@ -1,5 +1,19 @@
-
 <?php
+
+require get_theme_file_path('/inc/search-route.php');
+// You don't need to do this to create a custom rest API URL. It's just a way to get organized. You technically could just put the data from this route into functions.php directly, but this is a way to stay organized.
+
+function university_custom_rest(){
+  register_rest_field('post', 'authorName', array(
+    'get_callback' => function() { return get_the_author();} // you can list the name of the function or add an anonymous one here.
+  ));
+}
+
+// register_rest_field('post', 'perfectlyCroppedImageURL', array(
+//   'get_callback' => function() {return }
+// ));
+
+add_action('rest_api_init', 'university_custom_rest');
 
 // <!-- The functions.php file is different from the rest of the files. The other files are template files, used to load the HTML on the website. This file however, is where we have a conversation with the wordpress system itself. It works behind the scenes. -->
 
