@@ -260,64 +260,128 @@ class Search {
   }
 
   getResults() {
-    // Within the when(), you can provide as many requests as you want, and the when() method will babysit all the requests and wait for them all to finish before it completes the then() method.
-    // If there are two, then the first in when is mapped to the first parameter of then. So you must include matching parameters.
-    jquery__WEBPACK_IMPORTED_MODULE_0___default().when(jquery__WEBPACK_IMPORTED_MODULE_0___default().getJSON(universityData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()), jquery__WEBPACK_IMPORTED_MODULE_0___default().getJSON(universityData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val())).then((posts, pages) => {
-      // When info comes from when() then(), the data now contains more information than what comes from just a standard getJSON requests. (The first index 0 - is the information itself, while the rest is the extra info. So that's why we are indexing in at 0.)
-      // Note that item.authorName is only appicable to posts, not pages.
-
-      let combinedResults = posts[0].concat(pages[0]);
+    // This is to use the custom rest API.
+    // We use the ES6 arrow function so the value of 'this' doesn't change.
+    // note that the URL is from search-route.php -- part of the register_rest_route() parameters.
+    jquery__WEBPACK_IMPORTED_MODULE_0___default().getJSON(universityData.root_url + "/wp-json/university/v1/search?term=" + this.searchField.val(), results => {
+      // Modify the HTML of the search div.
       this.resultsDiv.html(`
-            <h2 class="search-overlay__section-title">General Information</h2>
-            ${combinedResults.length ? '<ul class="link-list min-list">' : "<p>No general information matches that search.</p>"}
-            ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a> 
-            ${item.type == 'post' ? `by ${item.authorName}` : ""}
-            </li>`).join("")}
+            <div class="row">
+            <div class="one-third">
+                <h2 class="search-overlay__section-title">General Information</h2>
+                ${results.generalInfo.length ? '<ul class="link-list min-list">' : "<p>No general information matches that search.</p>"}
+                ${results.generalInfo.map(item => `<li><a href="${item.permalink}">${item.title}</a> ${item.postType == "post" ? `by ${item.authorName}` : ""}</li>`).join("")}
+                ${results.generalInfo.length ? "</ul>" : ""}
+            </div>
+            <div class="one-third">
+                <h2 class="search-overlay__section-title">Programs</h2>
+                ${results.programs.length ? '<ul class="link-list min-list">' : `<p>No programs match that search. <a href="${universityData.root_url}/programs">View all programs</a></p>`}
+                ${results.programs.map(item => `<li><a href="${item.permalink}">${item.title}</a></li>`).join("")}
+                ${results.programs.length ? "</ul>" : ""}
 
-            ${combinedResults.length ? '</ul>' : ''}
-            `);
-      // <li><a href="${posts[0].link}">${posts[0].title.rendered}</a></li>
+                <h2 class="search-overlay__section-title">Professors</h2>
+                ${results.professors.length ? '<ul class="professor-cards">' : `<p>No professors match that search.</p>`}
+                ${results.professors.map(item => `
+                    <li class="professor-card__list-item">
+                    <a class="professor-card" href="${item.permalink}">
+                        <img class="professor-card__image" src="${item.image}">
+                        <span class="professor-card__name">${item.title}</span>
+                    </a>
+                    </li>
+                `).join("")}
+                ${results.professors.length ? "</ul>" : ""}
+
+            </div>
+            <div class="one-third">
+                <h2 class="search-overlay__section-title">Campuses</h2>
+                ${results.campuses.length ? '<ul class="link-list min-list">' : `<p>No campuses match that search. <a href="${universityData.root_url}/campuses">View all campuses</a></p>`}
+                ${results.campuses.map(item => `<li><a href="${item.permalink}">${item.title}</a></li>`).join("")}
+                ${results.campuses.length ? "</ul>" : ""}
+
+                <h2 class="search-overlay__section-title">Events</h2>
+                ${results.events.length ? "" : `<p>No events match that search. <a href="${universityData.root_url}/events">View all events</a></p>`}
+                ${results.events.map(item => `
+                    <div class="event-summary">
+                    <a class="event-summary__date t-center" href="${item.permalink}">
+                        <span class="event-summary__month">${item.month}</span>
+                        <span class="event-summary__day">${item.day}</span>  
+                    </a>
+                    <div class="event-summary__content">
+                        <h5 class="event-summary__title headline headline--tiny"><a href="${item.permalink}">${item.title}</a></h5>
+                        <p>${item.description} <a href="${item.permalink}" class="nu gray">Learn more</a></p>
+                    </div>
+                    </div>
+                `).join("")}
+
+            </div>
+            </div>
+        `);
       this.isSpinnerVisible = false;
-    }, () => {
-      this.resultsDiv.html('<p>Unexpected error, please try again.</p>');
     });
-
-    // NOTE THAT THE BELOW WAS REPLACED WITH THE ABOVE:
-    // When this code runs below, it overwrites the code where the spinner is. So we need to set the property to false now:
-    // this.isSpinnerVisible = false;
-    // this.resultsDiv.html("Imagine real search results here...");
-
-    //first arg is the url you want to send a request to. Second argument is the function you want to do after the url responds.
-    // Localhost:3000/wp-json/wp/v2/posts?search= this, plus the search term after =, will send a json object back.
-    // NOTE: in WP we can only search in posts or pages at one time, not in both. So to get data for both, we have nested $.getJSON requests.
-    // $.getJSON(universityData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val(), posts => {
-    //     $.getJSON(universityData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val(), pages => {
-    //         // After the getJSON method fires, it will pass the data into the function, so we have to include a parameter to get the data that's returned. -- That's called posts
-    //     // posts[0].title.rendered -- that pulls in the name of the first wp post from the array of results
-
-    //     // NOTE: in a string block you can't press enter, if you do it will show an error. If you still want to, you could use \ at the end of each line break. Example:
-    //     // this.resultsDiv.html('<h2>General Information</h2> \
-    //     // <ul>\
-    //     // <li></li>\
-    //     // </ul>');
-    //     // this.resultsDiv.html('<h2>General Information</h2><ul><li></li></ul>');
-    //     // Instead of the above, you could use the backtick `` to create a template literal. In between them we can do whatever we want for the most part.
-    //     // NOTE: The below is used to combine the results of both posts and pages.
-    //     let combinedResults = posts.concat(pages);
-    //     this.resultsDiv.html(`
-    //     <h2 class="search-overlay__section-title">General Information</h2>
-    //     ${combinedResults.length ? '<ul class="link-list min-list>' : "<p>No general information matches that search.</p>" }
-
-    //     ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`).join("")}
-
-    //     ${combinedResults.length ? '</ul>' : '' }
-    //     `);
-    //     // <li><a href="${posts[0].link}">${posts[0].title.rendered}</a></li>
-    //     this.isSpinnerVisible = false;
-    //     });
-    // });
-    // The ES6 arrow function is being used becuase it doesn't change the value of the this keyword. 
   }
+
+  //THIS IS USING THE OLD WAY -- THE WP DEFAULT JSON DATA PULL -- THE NEW WAY ABOVE REQUIRED US TO ADD THE SEARCH-ROUTE.PHP FILE TO CREATE A CUSTOM REST API:
+  // Within the when(), you can provide as many requests as you want, and the when() method will babysit all the requests and wait for them all to finish before it completes the then() method.
+  // If there are two, then the first in when is mapped to the first parameter of then. So you must include matching parameters.
+  // $.when(
+  //     $.getJSON(universityData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val()), 
+  //     $.getJSON(universityData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val())
+  //     ).then((posts, pages) => {
+
+  // When info comes from when() then(), the data now contains more information than what comes from just a standard getJSON requests. (The first index 0 - is the information itself, while the rest is the extra info. So that's why we are indexing in at 0.)
+  // Note that item.authorName is only appicable to posts, not pages.
+
+  // let combinedResults = posts[0].concat(pages[0]);
+  // this.resultsDiv.html(`
+  // <h2 class="search-overlay__section-title">General Information</h2>
+  // ${combinedResults.length ? '<ul class="link-list min-list">' : "<p>No general information matches that search.</p>" }
+  // ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a> 
+  // ${item.type == 'post' ? `by ${item.authorName}` : ""}
+  // </li>`).join("")}
+
+  // ${combinedResults.length ? '</ul>' : '' }
+  // `);
+  // <li><a href="${posts[0].link}">${posts[0].title.rendered}</a></li>
+  //     this.isSpinnerVisible = false;
+  // }, () => {
+  //     this.resultsDiv.html('<p>Unexpected error, please try again.</p>');
+  // });
+
+  // NOTE THAT THE BELOW WAS REPLACED WITH THE ABOVE:
+  // When this code runs below, it overwrites the code where the spinner is. So we need to set the property to false now:
+  // this.isSpinnerVisible = false;
+  // this.resultsDiv.html("Imagine real search results here...");
+
+  //first arg is the url you want to send a request to. Second argument is the function you want to do after the url responds.
+  // Localhost:3000/wp-json/wp/v2/posts?search= this, plus the search term after =, will send a json object back.
+  // NOTE: in WP we can only search in posts or pages at one time, not in both. So to get data for both, we have nested $.getJSON requests.
+  // $.getJSON(universityData.root_url + '/wp-json/wp/v2/posts?search=' + this.searchField.val(), posts => {
+  //     $.getJSON(universityData.root_url + '/wp-json/wp/v2/pages?search=' + this.searchField.val(), pages => {
+  //         // After the getJSON method fires, it will pass the data into the function, so we have to include a parameter to get the data that's returned. -- That's called posts
+  //     // posts[0].title.rendered -- that pulls in the name of the first wp post from the array of results
+
+  //     // NOTE: in a string block you can't press enter, if you do it will show an error. If you still want to, you could use \ at the end of each line break. Example:
+  //     // this.resultsDiv.html('<h2>General Information</h2> \
+  //     // <ul>\
+  //     // <li></li>\
+  //     // </ul>');
+  //     // this.resultsDiv.html('<h2>General Information</h2><ul><li></li></ul>');
+  //     // Instead of the above, you could use the backtick `` to create a template literal. In between them we can do whatever we want for the most part.
+  //     // NOTE: The below is used to combine the results of both posts and pages.
+  //     let combinedResults = posts.concat(pages);
+  //     this.resultsDiv.html(`
+  //     <h2 class="search-overlay__section-title">General Information</h2>
+  //     ${combinedResults.length ? '<ul class="link-list min-list>' : "<p>No general information matches that search.</p>" }
+
+  //     ${combinedResults.map(item => `<li><a href="${item.link}">${item.title.rendered}</a></li>`).join("")}
+
+  //     ${combinedResults.length ? '</ul>' : '' }
+  //     `);
+  //     // <li><a href="${posts[0].link}">${posts[0].title.rendered}</a></li>
+  //     this.isSpinnerVisible = false;
+  //     });
+  // });
+  // The ES6 arrow function is being used becuase it doesn't change the value of the this keyword. 
 
   // When the event happens, it will pass certain information on to the keyPressDispatcher function. We call it e.
   keyPressDispatcher(e) {
@@ -341,7 +405,9 @@ class Search {
     // The below will place the cursor in the field, however, we have to do a timeout so the CSS transition is complete before it activates. Most of the time 301 milliseconds should be enough for a css transition.
     setTimeout(() => this.searchField.focus(), 301);
     this.isOverlayOpen = true;
+    return false; // We added a fall-back non-js search page in case the user doesn't have JS installed. by returning false here, when the user clicks on the a tag, the false will stop it from acting like an a tag (aka it won't route to the search page, it will open the overlay, as programmed in this js file.) -- If the user doesn't have JS installed, then this function never runs, so it acts as a link for them.
   }
+
   closeOverlay() {
     this.searchOverlay.removeClass("search-overlay--active");
     jquery__WEBPACK_IMPORTED_MODULE_0___default()("body").removeClass("body-no-scroll");

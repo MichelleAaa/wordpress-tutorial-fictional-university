@@ -40,8 +40,8 @@
         echo "<h2 class='headline headline--medium'>Related Program(s)</h2>";
         echo '<ul class="link-list min-list">';
 // The name of the second variable, $program, doesn't matter. Only the array name must be correct.
+// echo get_the_title($program); -  We give the ID of the post or a wp post object. that's what program is, as each item in the array is a wp post object. -- This will output the program names that we added in the wp-admin panel - by adding the relationship in the event post type, as we set up a custom field - relationship type.
         foreach($relatedPrograms as $program) { ?>
-            // echo get_the_title($program); -  We give the ID of the post or a wp post object. that's what program is, as each item in the array is a wp post object. -- This will output the program names that we added in the wp-admin panel - by adding the relationship in the event post type, as we set up a custom field - relationship type.
             <li><a href="<?php echo get_the_permalink($program); ?>"><?php echo get_the_title($program); ?></a></li>
 
         <?php }

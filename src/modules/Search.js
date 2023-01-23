@@ -218,6 +218,7 @@ class Search {
         setTimeout(() =>  
             this.searchField.focus(), 301);
         this.isOverlayOpen = true; 
+        return false; // We added a fall-back non-js search page in case the user doesn't have JS installed. by returning false here, when the user clicks on the a tag, the false will stop it from acting like an a tag (aka it won't route to the search page, it will open the overlay, as programmed in this js file.) -- If the user doesn't have JS installed, then this function never runs, so it acts as a link for them.
     }
     closeOverlay() {
         this.searchOverlay.removeClass("search-overlay--active");
