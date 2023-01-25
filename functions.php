@@ -88,7 +88,8 @@ function university_files() {
   wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
 
   wp_localize_script('main-university-js', 'universityData', array(
-    'root_url' => get_site_url()// this will enable us to get the site_url dynamically.
+    'root_url' => get_site_url(),// this will enable us to get the site_url dynamically.
+    'nonce' => wp_create_nonce('wp_rest') //whenever we log into wp there will be a secret property called a nonce generated for our user session.
   ));//this is a WP function that wil let us output a little bit of JS data into the html source of the website. It takes three arguments. 1st - name or handle of the JS file yo uare trying to make flexible. In this case "main-university-js'. 2nd - make up a varible name, and the name doesn't matter. 3rd - an array of data that needs to be made available in JS.
 }
 
@@ -207,4 +208,65 @@ function university_adjust_queries($query) {
 // acf is for advanced custom fields
   add_filter('acf/fields/google_map/api', 'universityMapKey');
 
+
+
+  // Redirect subscriber account out of admin and onto homepage. (So when the user logs in, if they are a subscriber account they don't get sent to wp-admin, they go to the main website. (Since Subscribers have less authority they don't need to go to wp-admin screen.))
+  add_action('admin_init', 'redirectSubsToFrontend');
+
+  function redirectSubsToFrontend() {
+    $ourCurrentUser = wp_get_current_user();
+    
+    if(count($ourCurrentUser->roles) == 1 && $ourCurrentUser->roles[0] == 'subscriber') { // If the user only has one role and that one role is subscriber
+      wp_redirect(site_url('/'));
+      exit;
+    }
+  }
+
+  // This gets rid of the admin bar if you are logged in.
+  add_action('admin_loaded', 'noSubsAdminBar');
+
+  function noSubsAdminBar() {
+    $ourCurrentUser = wp_get_current_user();
+    
+    if(count($ourCurrentUser->roles) == 1 && $ourCurrentUser->roles[0] == 'subscriber') {
+      show_admin_bar(false);//this gets rid of the admin bar for subscriber only users.
+    }
+  }
+
+  // Customize Login Screen
+  add_filter('login_headerurl', 'ourHeaderUrl');
+
+  function ourHeaderUrl() {
+    return esc_url(site_url('/'));
+  }
+
+  add_action('login_enqueue_scripts', 'ourLoginCSS');
+
+  // This adds in some CSS to the login screen. (All you need to do is write CSS in your main stylesheet that overrides the WP styling. -- It's some of the same stuff that was listed above in another section:)
+  function ourLoginCSS() {
+    wp_enqueue_style('custom-google-fonts', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
+  wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+  wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
+  wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
+  }
+
+  // This is for the wp login screen. It defaults to saying something about this being a WordPress site. So this function is to enable us to edit the title to be the blog name. 
+  add_filter('login_headertitle', 'ourLoginTitle');
+
+  function ourLoginTitle() {
+  return get_bloginfo('name');
+}
+
+//Force note posts to be private
+// Technically we could just set createNote() function in MyNotes.js to status = private, however, it's better to have logic that's not in the front process handle this, which is why we are putting it here.
+add_filter('wp_insert_post_data', 'makeNotePrivate');
+
+function makeNotePrivate($data) { // the data is the data about the post, which is about to be saved in the database. 
+  // Before we return the data, we can manipulate it however we want.
+  if($data['post_type'] == 'note' && $data['post_status'] != 'trash') { //we force the status to be private of notes that are not in status trash.
+    $data['post_status'] = 'private';
+  }
+  
+  return $data;
+}
 ?>
