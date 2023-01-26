@@ -25,6 +25,8 @@
             <input class="new-note-title" placeholder="Title">
             <textarea class="new-note-body" placeholder="Your note here..."></textarea>
             <span class="submit-note">Create Note</span>
+            <!-- The below span will be hidden when the page first loads, and it will show up with JS. -->
+            <span class="note-limit-message">Note limit reached: delete an existing note to make room for a new one.</span>
         </div>
         <ul class="min-list link-list" id="my-notes">
             <?php 
@@ -39,7 +41,10 @@
                 <li data-id="<?php the_ID(); ?>">
                 <!-- Note that readonly will make the input and textarea fields read only. In MyNotes.js we are targeting the input/text area fields and removing readonly when edit is clicked. -->
                     <!-- In wp, whenever you are using data from the database as an HTML attribute, you want to wrap it with a function called esc_attr(). -->
-                    <input readonly class="note-title-field" value="<?php echo esc_attr(get_the_title()); ?>">
+                    <!-- // Note that if you set the note to private, the title will show: 'Private: ... Rest of the title here'.
+                str_replace() -- takes three arguments.  First - string of text you want to search for. Second - what you want to replace the third with.  third -- what you want to manipulate (the original string.)
+            So we are using str_replace() to remove Private: from the start of the title.-->
+                    <input readonly class="note-title-field" value="<?php echo str_replace('Private: ', '', esc_attr(get_the_title())); ?>">
                     <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i>Edit</span>
                     <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i>Delete</span>
                     <!-- We need to use wp_strip_all_tags() becuase the content comes up with <p> tags and things, so this will remove them so it's not outputting HTML as text. -->

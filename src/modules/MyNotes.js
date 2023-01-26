@@ -1,4 +1,4 @@
-import $, { timers } from 'jquery';
+import $ from 'jquery';
 
 class MyNotes {
     constructor() {
@@ -49,9 +49,16 @@ class MyNotes {
             type: 'DELETE',
             success: (response) => {
                 thisNote.slideUp();//slideUp is a jQuery animation to slide the element up with an animation.
+                console.log("congrats");
+                console.log(response);
+                if (response.userNoteCount < 5) {
+                    $(".note-limit-message").removeClass("active");
+                }
             }, //this is a function we want to run if the function is successful.
             error: () => {
                 // nonce stands for a number used once. Whenever you log into your wp account it can generate a nonce for you.
+                // console.log("sorry");
+                // console.log(response);
             } //function that will run if the request fails.
         }); // ajax is a great option when you want to control what type of request you are sending. 
     }
@@ -87,6 +94,7 @@ class MyNotes {
             'status': 'private'//this will set the note to private status.
             // 'status': 'publish' // note that by default when we add a note via the wp API it is set to draft mode. So here we are setting status to publish so it will show up immediately.
             
+            
         }
 
         $.ajax({
@@ -110,7 +118,13 @@ class MyNotes {
                 `).prependTo("#my-notes").hide().slideDown();
                 // note that when you create a note through the API it shows up in wp-admin, but it's in draft mode. You would have to go into wp-admin and click published.
             }, //this is a function we want to run if the function is successful.
-            error: () => {
+            error: response => {
+                console.log(response);
+                if (response.responseText == "You have reached your note limit.") {
+
+                    // if we receive the above error message, then we want to reveal the span that has a message:
+                    $(".note-limit-message").addClass("active")
+                }
                 // nonce stands for a number used once. Whenever you log into your wp account it can generate a nonce for you.
             } //function that will run if the request fails.
         }); // ajax is a great option when you want to control what type of request you are sending. 

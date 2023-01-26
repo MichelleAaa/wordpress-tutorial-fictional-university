@@ -2,10 +2,14 @@
 
 require get_theme_file_path('/inc/search-route.php');
 // You don't need to do this to create a custom rest API URL. It's just a way to get organized. You technically could just put the data from this route into functions.php directly, but this is a way to stay organized.
+require get_theme_file_path('/inc/like-route.php');
 
 function university_custom_rest(){
   register_rest_field('post', 'authorName', array(
     'get_callback' => function() { return get_the_author();} // you can list the name of the function or add an anonymous one here.
+  ));
+  register_rest_field('note', 'userNoteCount', array(
+    'get_callback' => function() { return count_user_posts(get_current_user_id(), 'note');} 
   ));
 }
 
@@ -259,9 +263,20 @@ function university_adjust_queries($query) {
 
 //Force note posts to be private
 // Technically we could just set createNote() function in MyNotes.js to status = private, however, it's better to have logic that's not in the front process handle this, which is why we are putting it here.
-add_filter('wp_insert_post_data', 'makeNotePrivate');
+add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2); // 10 is the default (priority of the callback function), 2 is for makeNotePrivate to work with two parameters. (By default it's set to 1.) We need to do that to have access to the $postarr
 
-function makeNotePrivate($data) { // the data is the data about the post, which is about to be saved in the database. 
+// postarr contains the ID number.
+function makeNotePrivate($data, $postarr) { // the data is the data about the post, which is about to be saved in the database. 
+  if($data['post_type'] == 'note') {
+    // count_user_posts() - First argument is the user id, second argument is which post type you want to count
+    if(count_user_posts(get_current_user_id(), 'note') > 4 && !$postarr['ID']){ // note that when you move posts to the trash wp edits the post status to trash. So the wp_insert_post_data runs whenever you need to delete posts as well. -- so we need the && to do this. -- !$postarr['id'] means that there's no id yet. So it will stop a new post from being created but won't stop an existing post from being deleted.
+      die("You have reached your note limit.");
+    }
+
+    $data['post_content'] = sanitize_textarea_field($data['post_content']); //this strips out any html from the textarea before it's saved to the database.
+    $data['post_title'] = sanitize_text_field($data['post_title']); // this strips out any html from a text field (such as an input field for a title) before the data is saved to the database.
+  }
+
   // Before we return the data, we can manipulate it however we want.
   if($data['post_type'] == 'note' && $data['post_status'] != 'trash') { //we force the status to be private of notes that are not in status trash.
     $data['post_status'] = 'private';
