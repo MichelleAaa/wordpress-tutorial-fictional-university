@@ -284,4 +284,14 @@ function makeNotePrivate($data, $postarr) { // the data is the data about the po
   
   return $data;
 }
+
+// If you install the All-in-one WP Migration plugin by ServMask, you can add the below so it will not bundle the node_modules folder (If you are using a site like siteground where you can buy a hosting plan with wp, then you don't need the node_modules file when you export the file with the migration tool and the install it in the site.)
+
+add_filter('ai1wm_exclude_content_from_export', 'ignoreCertainFiles');
+
+function ignoreCertainFiles($exclude_filters) {
+  $exclude_filters[] = 'themes/fictional-university-theme/node_modules';
+  return $exclude_filters;
+}
+
 ?>
